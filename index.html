@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Tienda en Línea</title>
+    <!-- Usamos Tailwind CSS vía CDN para un diseño rápido y moderno sin instalar nada -->
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+    <!-- BARRA DE USUARIO (Colócala justo arriba del <header>) -->
+    <div id="barra-usuario" class="bg-gray-800 text-white text-xs py-2 px-4 flex justify-between items-center">
+        <span id="texto-usuario">👋 Invitado (No has iniciado sesión)</span>
+        <button id="btn-login-logout" onclick="abrirCerrarModalLogin()"
+            class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded">
+            Iniciar Sesión
+        </button>
+    </div>
+
+    <!-- VENTANA MODAL OCULTA PARA EL LOGIN -->
+    <div id="modal-login" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm relative">
+            <button onclick="abrirCerrarModalLogin()"
+                class="absolute top-3 right-3 text-gray-500 hover:text-gray-800">✕</button>
+            <h3 class="text-xl font-bold mb-4 text-center">Ingresar a la Tienda</h3>
+
+            <form onsubmit="ejecutarLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <input type="email" id="login-correo" required
+                        class="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="login-pass" required
+                        class="mt-1 w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition">
+                    Ingresar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- BARRA DE NAVEGACIÓN -->
+    <header class="bg-blue-600 text-white p-4 sticky top-0 shadow-md z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">🛒 Mi Tienda Gratuita</h1>
+            <button onclick="toggleCarrito()"
+                class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg font-semibold relative">
+                Ver Carrito (<span id="contador-carrito">0</span>)
+            </button>
+        </div>
+    </header>
+
+    <!-- SECCIÓN PRINCIPAL -->
+    <main class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- CATÁLOGO DE PRODUCTOS (Ocupa 3 columnas en pantallas grandes) -->
+        <section class="lg:col-span-3">
+            <h2 class="text-xl font-bold mb-4">Nuestro Catálogo</h2>
+            <!-- Aquí JavaScript meterá las tarjetas de productos de Google Sheets -->
+            <div id="contenedor-productos" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <p class="text-gray-500 animate-pulse">Cargando productos desde el almacén...</p>
+            </div>
+        </section>
+
+        <!-- VENTANA/PANEL DEL CARRITO (Ocupa 1 columna lateral) -->
+        <aside id="panel-carrito" class="bg-white p-4 rounded-xl shadow-md border h-fit sticky top-24">
+            <h2 class="text-xl font-bold mb-4">Tu Pedido</h2>
+            <div id="items-carrito" class="space-y-3 max-h-60 overflow-y-auto mb-4">
+                <p class="text-gray-400 text-sm">El carrito está vacío.</p>
+            </div>
+            <div class="border-t pt-4">
+                <div class="flex justify-between font-bold text-lg mb-4">
+                    <span>Total:</span>
+                    <span>$<span id="total-carrito">0.00</span></span>
+                </div>
+                <button onclick="enviarPedido()"
+                    class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg transition">
+                    Confirmar y Enviar Pedido
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- PANEL DE ADMINISTRACIÓN (Oculto por defecto) -->
+    <section id="panel-admin" class="hidden col-span-1 lg:col-span-4 bg-white p-6 rounded-xl shadow-md border mt-6">
+        <div class="border-b pb-4 mb-4 flex justify-between items-center bg-gray-900 text-white p-4 rounded-lg">
+            <h2 class="text-2xl font-bold">⚙️ Panel de Control (Vendedora)</h2>
+            <span class="bg-red-500 text-xs font-bold px-3 py-1 rounded-full uppercase">Modo Admin</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- MÓDULO 1: GESTIÓN DE ALMACÉN -->
+            <div class="bg-gray-50 p-4 rounded-lg border">
+                <h3 class="font-bold text-lg mb-3 text-blue-700">📦 Gestión de Almacén</h3>
+                <p class="text-xs text-gray-500 mb-3">Actualiza el stock disponible en Google Sheets de forma directa.
+                </p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600">ID del Producto:</label>
+                        <input type="text" id="admin-prod-id" placeholder="Ej: PROD-01"
+                            class="w-full p-2 text-sm border rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600">Nuevo Stock:</label>
+                        <input type="number" id="admin-prod-stock" placeholder="Ej: 50"
+                            class="w-full p-2 text-sm border rounded-lg outline-none">
+                    </div>
+                    <button onclick="actualizarStockAdmin()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg text-sm transition">
+                        Guardar Cambios en Inventario
+                    </button>
+                </div>
+            </div>
+
+            <!-- MÓDULO 2: REPORTES DE VENTAS -->
+            <div class="bg-gray-50 p-4 rounded-lg border">
+                <h3 class="font-bold text-lg mb-3 text-green-700">📈 Reporte General de Pedidos</h3>
+                <p class="text-xs text-gray-500 mb-3">Últimas órdenes registradas en el sistema.</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs bg-white border rounded">
+                        <thead>
+                            <tr class="bg-gray-200 text-gray-700">
+                                <th class="p-2 border">ID Pedido</th>
+                                <th class="p-2 border">Usuario</th>
+                                <th class="p-2 border">Total</th>
+                                <th class="p-2 border">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-reportes-admin">
+                            <tr>
+                                <td colspan="4" class="p-2 text-center text-gray-400">Inicia sesión como Admin para
+                                    cargar datos.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Vinculamos nuestro archivo JavaScript para darle vida a la página -->
+    <script src="script.js"></script>
+
+    <!-- BURBUJA Y VENTANA DE CHAT GENERAL -->
+    <div id="componente-chat" class="fixed bottom-4 right-4 z-50">
+        <!-- Botón Circular para abrir/cerrar -->
+        <button onclick="toggleVentanaChat()"
+            class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-xl flex items-center justify-center font-bold">
+            💬 Chat
+        </button>
+
+        <!-- Caja del Chat (Oculta por defecto) -->
+        <div id="ventana-chat"
+            class="hidden bg-white w-80 h-96 rounded-xl shadow-2xl border flex flex-col absolute bottom-16 right-0 overflow-hidden">
+            <!-- Encabezado -->
+            <div class="bg-blue-600 text-white p-3 font-bold text-sm flex justify-between items-center">
+                <span>Canal de Ayuda En Línea</span>
+                <button onclick="toggleVentanaChat()" class="text-xs hover:text-gray-200">Minimizar</button>
+            </div>
+
+            <!-- Contenedor de Mensajes -->
+            <div id="caja-mensajes" class="flex-1 p-3 overflow-y-auto space-y-2 bg-gray-50 text-xs">
+                <p class="text-gray-400 text-center italic">Inicia sesión para chatear con la vendedora.</p>
+            </div>
+
+            <!-- Formulario de Envío -->
+            <form onsubmit="enviarMensajeChat(event)" class="border-t p-2 flex bg-white">
+                <input type="text" id="input-mensaje-chat" disabled placeholder="Debes iniciar sesión..."
+                    class="flex-1 p-2 text-xs border rounded-l-lg outline-none focus:ring-1 focus:ring-blue-500">
+                <button type="submit" id="btn-enviar-chat" disabled
+                    class="bg-blue-600 text-white px-4 rounded-r-lg font-bold text-xs hover:bg-blue-700">▶</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
