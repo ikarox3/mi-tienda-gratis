@@ -374,21 +374,17 @@ function toggleVentanaChat() {
 
 // Habilitar o deshabilitar la escritura del chat según el login
 // AGREGA ESTAS LÍNEAS al final de tu función existente "actualizarInterfazUsuario()"
-if (usuarioActivo) {
+/* if (usuarioActivo) {
   document.getElementById("input-mensaje-chat").disabled = false;
   document.getElementById("input-mensaje-chat").placeholder = "Escribe un mensaje...";
   document.getElementById("btn-enviar-chat").disabled = false;
 } else {
-  const boton = document.getElementById("input-mensaje-chat");
-  if (boton !== null) {
-    boton.disabled = true;
-  }
-  //document.getElementById("input-mensaje-chat").disabled = true;
+  document.getElementById("input-mensaje-chat").disabled = true;
   document.getElementById("input-mensaje-chat").placeholder = "Debes iniciar sesión...";
   document.getElementById("btn-enviar-chat").disabled = true;
   clearInterval(intervaloChat);
   intervaloChat = null;
-}
+} */
 
 // TRAER LOS MENSAJES DE GOOGLE SHEETS
 async function cargarMensajesChat() {
