@@ -379,7 +379,11 @@ if (usuarioActivo) {
   document.getElementById("input-mensaje-chat").placeholder = "Escribe un mensaje...";
   document.getElementById("btn-enviar-chat").disabled = false;
 } else {
-  document.getElementById("input-mensaje-chat").disabled = true;
+  const boton = document.getElementById("input-mensaje-chat");
+  if (boton !== null) {
+    boton.disabled = true;
+  }
+  //document.getElementById("input-mensaje-chat").disabled = true;
   document.getElementById("input-mensaje-chat").placeholder = "Debes iniciar sesión...";
   document.getElementById("btn-enviar-chat").disabled = true;
   clearInterval(intervaloChat);
